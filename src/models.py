@@ -7,26 +7,32 @@ class RectangleAnalyzer:
         """
         self.rectangles = rectangles
 
-    def find_overlaps(self) -> list[tuple]:
+    def find_overlaps(self) -> list[tuple[int,int]]:
         """
         Find all pairs of overlapping rectangles.
         Returns: List of tuples (i, j) where i < j are indices
         Example: [(0, 1), (0, 2), (1, 2)]
         """
         rectangles = self.rectangles
-        res: list[tuple] = []
+        res: list[tuple[int,int]] = []
         if len(rectangles) != 0:
-            for i in range(len(rectangles)):
-                for j in range(i + 1, len(rectangles)):
-                    if (min(rectangles[i]['x'] + rectangles[i]['width'], rectangles[j]['x']+ rectangles[j]['width'])
-                        >
-                        max(rectangles[i]['x'], rectangles[j]['x'])):
+             for i in range(len(rectangles)):
+                 for j in range(i + 1, len(rectangles)):
+                    ixmin = rectangles[i]['x']
+                    ixmax = ixmin + rectangles[i]['width']
+                    iymin = rectangles[i]['y']
+                    iymax = iymin + rectangles[i]['height']
+                    jxmin = rectangles[j]['x']
+                    jxmax = jxmin + rectangles[j]['width']
+                    jymin = rectangles[j]['y']
+                    jymax = jymin + rectangles[j]['height']
 
-                        if  (min(rectangles[i]['y'] + rectangles[i]['height'], rectangles[j]['y']+ rectangles[j]['height'])
-                            >
-                            max(rectangles[i]['y'], rectangles[j]['y'])):
+
+                    if min(ixmax, jxmax) > max(ixmin, jxmin):
+                        if min(iymax, jymax) > max(iymin, jymin):
                             res.append((i,j))
         return res
+
 
 
 
@@ -46,7 +52,7 @@ class RectangleAnalyzer:
         - 'rect_indices': tuple of rectangle indices
         - 'region': dict with x, y, width, height of overlap
         """
-        # overlaps:list[tuple] = self.find_overlaps()
+        # overlaps:list[tuple[int,int]] = self.find_overlaps()
         # res:list[dict] =[]
         # temp:dict[tuple[int,int],dict[]] = {}
 
