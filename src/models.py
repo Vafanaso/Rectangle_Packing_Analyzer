@@ -7,6 +7,18 @@ class RectangleAnalyzer:
         """
         self.rectangles = rectangles
 
+    def _boundries(self,rectangle:dict)-> dict[str,float]:
+        """
+        A helper function that returns boundries of the given rectangle
+
+        """
+        ixmin = rectangle['x']
+        ixmax = ixmin + rectangle['width']
+        iymin = rectangle['y']
+        iymax = iymin + rectangle['height']
+        boundries = {'xmin': rectangle['x'],'xmax' : ixmin + rectangle['width'], 'ymin': rectangle['y'],'ymax' : iymin + rectangle['height']}
+        return boundries
+
     def find_overlaps(self) -> list[tuple[int,int]]:
         """
         Find all pairs of overlapping rectangles.
@@ -18,18 +30,22 @@ class RectangleAnalyzer:
         if len(rectangles) != 0:
              for i in range(len(rectangles)):
                  for j in range(i + 1, len(rectangles)):
-                    ixmin = rectangles[i]['x']
-                    ixmax = ixmin + rectangles[i]['width']
-                    iymin = rectangles[i]['y']
-                    iymax = iymin + rectangles[i]['height']
-                    jxmin = rectangles[j]['x']
-                    jxmax = jxmin + rectangles[j]['width']
-                    jymin = rectangles[j]['y']
-                    jymax = jymin + rectangles[j]['height']
+
+                    ibound = self._boundries(rectangles[i])
+                    jbound = self._boundries(rectangles[j])
+
+                    # ixmin = rectangles[i]['x']
+                    # ixmax = ixmin + rectangles[i]['width']
+                    # iymin = rectangles[i]['y']
+                    # iymax = iymin + rectangles[i]['height']
+                    # jxmin = rectangles[j]['x']
+                    # jxmax = jxmin + rectangles[j]['width']
+                    # jymin = rectangles[j]['y']
+                    # jymax = jymin + rectangles[j]['height']
 
 
-                    if min(ixmax, jxmax) > max(ixmin, jxmin):
-                        if min(iymax, jymax) > max(iymin, jymin):
+                    if min(ibound['xmax'], jbound['xmax']) > max(ibound['xmin'], jbound['xmin']):
+                        if min(ibound['ymax'], jbound['ymax']) > max(ibound['ymin'], jbound['ymin']):
                             res.append((i,j))
         return res
 
