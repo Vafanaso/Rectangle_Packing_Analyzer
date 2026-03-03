@@ -7,14 +7,29 @@ class RectangleAnalyzer:
         """
         self.rectangles = rectangles
 
-
-    def find_overlaps(self)-> list[tuple]:
+    def find_overlaps(self) -> list[tuple]:
         """
         Find all pairs of overlapping rectangles.
         Returns: List of tuples (i, j) where i < j are indices
         Example: [(0, 1), (0, 2), (1, 2)]
         """
-        pass
+        rectangles = self.rectangles
+        res: list[tuple] = []
+        if len(rectangles) != 0:
+            for i in range(len(rectangles)):
+                for j in range(i + 1, len(rectangles)):
+                    if (min(rectangles[i]['x'] + rectangles[i]['width'], rectangles[j]['x']+ rectangles[j]['width'])
+                        >
+                        max(rectangles[i]['x'], rectangles[j]['x'])):
+
+                        if  (min(rectangles[i]['y'] + rectangles[i]['height'], rectangles[j]['y']+ rectangles[j]['height'])
+                            >
+                            max(rectangles[i]['y'], rectangles[j]['y'])):
+                            res.append((i,j))
+        return res
+
+
+
 
     def calculate_coverage_area(self) -> float:
         """
@@ -24,7 +39,6 @@ class RectangleAnalyzer:
         """
         pass
 
-
     def get_overlap_regions(self) -> list[dict]:
         """
         Find actual overlap regions between rectangles.
@@ -32,8 +46,9 @@ class RectangleAnalyzer:
         - 'rect_indices': tuple of rectangle indices
         - 'region': dict with x, y, width, height of overlap
         """
-        pass
-
+        # overlaps:list[tuple] = self.find_overlaps()
+        # res:list[dict] =[]
+        # temp:dict[tuple[int,int],dict[]] = {}
 
     def is_point_covered(self, x: int | float, y: int | float) -> bool:
         """
@@ -41,7 +56,6 @@ class RectangleAnalyzer:
         Returns: boolean
         """
         pass
-
 
     def find_max_overlap_point(self) -> dict:
         """
@@ -52,7 +66,6 @@ class RectangleAnalyzer:
         one.
         """
         pass
-
 
     def get_stats(self) -> dict:
         """
