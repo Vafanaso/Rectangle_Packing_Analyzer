@@ -1,0 +1,70 @@
+class RectangleAnalyzer:
+
+    def __init__(self, rectangles: list[dict]):
+        """
+        Initialize analyzer with list of rectangles.
+        Each rectangle is a dict with keys: x, y, width, height
+        """
+        self.rectangles = rectangles
+
+
+    def find_overlaps(self)-> list[tuple]:
+        """
+        Find all pairs of overlapping rectangles.
+        Returns: List of tuples (i, j) where i < j are indices
+        Example: [(0, 1), (0, 2), (1, 2)]
+        """
+        pass
+
+    def calculate_coverage_area(self) -> float:
+        """
+        Calculate total area covered by all rectangles.
+        Overlapping areas should be counted only once.
+        Returns: float/int representing total area
+        """
+        pass
+
+
+    def get_overlap_regions(self) -> list[dict]:
+        """
+        Find actual overlap regions between rectangles.
+        Returns: List of dicts containing:
+        - 'rect_indices': tuple of rectangle indices
+        - 'region': dict with x, y, width, height of overlap
+        """
+        pass
+
+
+    def is_point_covered(self, x: int | float, y: int | float) -> bool:
+        """
+        Check if a point is covered by any rectangle.
+        Returns: boolean
+        """
+        pass
+
+
+    def find_max_overlap_point(self) -> dict:
+        """
+        Find a point covered by maximum number of rectangles.
+        Returns: dict with 'x', 'y', 'count' keys
+        Note: There might be multiple such points, return any
+
+        one.
+        """
+        pass
+
+
+    def get_stats(self) -> dict:
+        """
+        Get coverage statistics.
+        Returns: dict with:
+        - 'total_rectangles': int
+        - 'overlapping_pairs': int
+        - 'total_area': float (union area)
+        - 'overlap_area': float (sum of all overlap regions)
+        - 'coverage_efficiency': float (total_area /
+
+        sum_of_individual_areas)
+
+        """
+        pass
