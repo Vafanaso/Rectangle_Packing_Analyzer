@@ -12,11 +12,11 @@ class RectangleAnalyzer:
         A helper function that returns boundries of the given rectangle
 
         """
-        ixmin = rectangle['x']
-        ixmax = ixmin + rectangle['width']
-        iymin = rectangle['y']
-        iymax = iymin + rectangle['height']
-        boundries = {'xmin': rectangle['x'],'xmax' : ixmin + rectangle['width'], 'ymin': rectangle['y'],'ymax' : iymin + rectangle['height']}
+        xmin = float(rectangle['x'])
+        xmax = float(xmin + rectangle['width'])
+        ymin = float(rectangle['y'])
+        ymax = float(ymin + rectangle['height'])
+        boundries = {'xmin': xmin,'xmax' : xmax, 'ymin': ymin,'ymax' : ymax}
         return boundries
 
     def find_overlaps(self) -> list[tuple[int,int]]:
@@ -71,23 +71,20 @@ class RectangleAnalyzer:
         """
         overlaps:list[tuple[int,int]] = self.find_overlaps()
         res:list[dict] =[]
-        first_dct:dict = {}
-        region:dict[str, float] = {}
+
 
         for item in overlaps:
-            first_dct.update({'rect_indice': item})
 
             ibound:dict = self._boundries(self.rectangles[item[0]])
             jbound:dict = self._boundries(self.rectangles[item[1]])
 
-            region.update({'x': max(ibound['xmin'], jbound['xmin'])})
-            region.update({'y': max(ibound['ymin'], jbound['ymin'])})
+            x = max(ibound['xmin'], jbound['xmin'])
+            y = max(ibound['ymin'], jbound['ymin'])
+            width = min(ibound['xmax'], jbound['xmax']) - x
+            height = min(ibound['ymax'], jbound['ymax']) - y
+            region:dict = {'x':x, 'y':y, 'width':width, 'height':height}
 
-            region.update({'width': min(ibound['xmax'], jbound['xmax']) - region['x']})
-            region.update({'height': min(ibound['ymax'], jbound['ymax']) - region['y']})
-
-            first_dct.update({'region': region})
-            res.append(first_dct)
+            res.append({'rect_indices': item, 'region':region})
         return res
 
 
