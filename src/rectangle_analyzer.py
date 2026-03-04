@@ -9,7 +9,7 @@ class RectangleAnalyzer:
         """
         self.rectangles = rectangles
 
-    def _boundries(self,rectangle:dict[str, float | int])-> dict[str,float]:
+    def _boundaries(self, rectangle:dict[str, float | int])-> dict[str,float]:
         """
         A helper func that converts a rectangle defined by (x, y, width, height) into boundary
         coordinates (xmin, xmax, ymin, ymax).
@@ -24,8 +24,8 @@ class RectangleAnalyzer:
         xmax = float(xmin + rectangle['width'])
         ymin = float(rectangle['y'])
         ymax = float(ymin + rectangle['height'])
-        boundries = {'xmin': xmin,'xmax' : xmax, 'ymin': ymin,'ymax' : ymax}
-        return boundries
+        boundaries = {'xmin': xmin,'xmax' : xmax, 'ymin': ymin,'ymax' : ymax}
+        return boundaries
 
     def _rectangle_area(self, rectangle:dict[str, float | int]) -> float:
         """
@@ -43,10 +43,10 @@ class RectangleAnalyzer:
         """
         area:float = 0
 
-        boundries = self._boundries(rectangle)
+        boundaries = self._boundaries(rectangle)
 
-        x_len:float = boundries['xmax'] - boundries['xmin']
-        y_len:float = boundries['ymax'] - boundries['ymin']
+        x_len:float = boundaries['xmax'] - boundaries['xmin']
+        y_len:float = boundaries['ymax'] - boundaries['ymin']
 
         area = x_len * y_len
 
@@ -73,8 +73,8 @@ class RectangleAnalyzer:
              for i in range(len(rectangles)):
                  for j in range(i + 1, len(rectangles)):
 
-                    ibound = self._boundries(rectangles[i])
-                    jbound = self._boundries(rectangles[j])
+                    ibound = self._boundaries(rectangles[i])
+                    jbound = self._boundaries(rectangles[j])
 
 
                     if min(ibound['xmax'], jbound['xmax']) > max(ibound['xmin'], jbound['xmin']):
@@ -107,7 +107,7 @@ class RectangleAnalyzer:
 
         # Build sweep events
         for rect in self.rectangles:
-            b = self._boundries(rect)
+            b = self._boundaries(rect)
             x1, x2 = b["xmin"], b["xmax"]
             y1, y2 = b["ymin"], b["ymax"]
             if x1 >= x2 or y1 >= y2:
@@ -181,8 +181,8 @@ class RectangleAnalyzer:
 
         for item in overlaps:
 
-            ibound:dict = self._boundries(self.rectangles[item[0]])
-            jbound:dict = self._boundries(self.rectangles[item[1]])
+            ibound:dict = self._boundaries(self.rectangles[item[0]])
+            jbound:dict = self._boundaries(self.rectangles[item[1]])
 
             x = max(ibound['xmin'], jbound['xmin'])
             y = max(ibound['ymin'], jbound['ymin'])
@@ -211,7 +211,7 @@ class RectangleAnalyzer:
         """
 
         for rect in self.rectangles:
-            rect_bound = self._boundries(rect)
+            rect_bound = self._boundaries(rect)
             if rect_bound['xmin'] <= x <= rect_bound['xmax']:
                 if rect_bound['ymin'] <= y <= rect_bound['ymax']:
                     return True
@@ -245,7 +245,7 @@ class RectangleAnalyzer:
 
         # collect all boundary coordinates
         for rect in self.rectangles:
-            b = self._boundries(rect)
+            b = self._boundaries(rect)
             xs.add(b["xmin"])
             xs.add(b["xmax"])
             ys.add(b["ymin"])
@@ -267,7 +267,7 @@ class RectangleAnalyzer:
 
                 count = 0
                 for rect in self.rectangles:
-                    b = self._boundries(rect)
+                    b = self._boundaries(rect)
                     if b["xmin"] <= x <= b["xmax"] and b["ymin"] <= y <= b["ymax"]:
                         count += 1
 
