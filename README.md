@@ -26,6 +26,20 @@ Finds a point that is covered by the maximum number of rectangles.
 **get_stats()**
 Returns summary statistics about the rectangle configuration.
 
+## Geometry Rules
+
+The implementation follows these geometric conventions:
+
+1. **Points on edges or corners are considered part of the rectangle.**
+
+2. **Rectangles that only touch at an edge or corner are not considered overlapping**,  
+   because their intersection area is zero.
+
+3. In `get_stats()`, **overlap_area** is defined as the **sum of all pairwise overlap regions**,  
+   exactly as stated in the method docstring (`sum of all overlap regions`).  
+   This means that if three rectangles overlap in the same place, that region may contribute
+   multiple times (once for each overlapping pair).
+
 ## Rectangle Format
 
 Rectangles are defined as dictionaries with the following keys:

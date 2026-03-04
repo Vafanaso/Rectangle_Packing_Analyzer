@@ -1,5 +1,6 @@
 from collections import Counter
 
+
 class RectangleAnalyzer:
 
     def __init__(self, rectangles: list[dict[str, float | int]]):
@@ -9,7 +10,7 @@ class RectangleAnalyzer:
         """
         self.rectangles = rectangles
 
-    def _boundaries(self, rectangle:dict[str, float | int])-> dict[str,float]:
+    def _boundaries(self, rectangle: dict[str, float | int]) -> dict[str, float]:
         """
         A helper func that converts a rectangle defined by (x, y, width, height) into boundary
         coordinates (xmin, xmax, ymin, ymax).
@@ -20,14 +21,14 @@ class RectangleAnalyzer:
             Dictionary with rectangle boundaries.
         """
 
-        xmin = float(rectangle['x'])
-        xmax = float(xmin + rectangle['width'])
-        ymin = float(rectangle['y'])
-        ymax = float(ymin + rectangle['height'])
-        boundaries = {'xmin': xmin,'xmax' : xmax, 'ymin': ymin,'ymax' : ymax}
+        xmin = float(rectangle["x"])
+        xmax = float(xmin + rectangle["width"])
+        ymin = float(rectangle["y"])
+        ymax = float(ymin + rectangle["height"])
+        boundaries = {"xmin": xmin, "xmax": xmax, "ymin": ymin, "ymax": ymax}
         return boundaries
 
-    def _rectangle_area(self, rectangle:dict[str, float | int]) -> float:
+    def _rectangle_area(self, rectangle: dict[str, float | int]) -> float:
         """
         Compute the area of a rectangle.
 
@@ -41,19 +42,18 @@ class RectangleAnalyzer:
         float
             Area of the rectangle.
         """
-        area:float = 0
+        area: float = 0
 
         boundaries = self._boundaries(rectangle)
 
-        x_len:float = boundaries['xmax'] - boundaries['xmin']
-        y_len:float = boundaries['ymax'] - boundaries['ymin']
+        x_len: float = boundaries["xmax"] - boundaries["xmin"]
+        y_len: float = boundaries["ymax"] - boundaries["ymin"]
 
         area = x_len * y_len
 
         return area
 
-
-    def find_overlaps(self) -> list[tuple[int,int]]:
+    def find_overlaps(self) -> list[tuple[int, int]]:
         """
         Find all pairs of rectangles that overlap.
 
@@ -68,22 +68,22 @@ class RectangleAnalyzer:
         """
 
         rectangles = self.rectangles
-        res: list[tuple[int,int]] = []
+        res: list[tuple[int, int]] = []
         if len(rectangles) != 0:
-             for i in range(len(rectangles)):
-                 for j in range(i + 1, len(rectangles)):
+            for i in range(len(rectangles)):
+                for j in range(i + 1, len(rectangles)):
 
                     ibound = self._boundaries(rectangles[i])
                     jbound = self._boundaries(rectangles[j])
 
-
-                    if min(ibound['xmax'], jbound['xmax']) > max(ibound['xmin'], jbound['xmin']):
-                        if min(ibound['ymax'], jbound['ymax']) > max(ibound['ymin'], jbound['ymin']):
-                            res.append((i,j))
+                    if min(ibound["xmax"], jbound["xmax"]) > max(
+                        ibound["xmin"], jbound["xmin"]
+                    ):
+                        if min(ibound["ymax"], jbound["ymax"]) > max(
+                            ibound["ymin"], jbound["ymin"]
+                        ):
+                            res.append((i, j))
         return res
-
-
-
 
     def calculate_coverage_area(self) -> float:
         """
@@ -100,7 +100,6 @@ class RectangleAnalyzer:
         float
             Union area of all rectangles (overlaps counted only once).
         """
-
 
         OPEN, CLOSE = 1, -1
         events: list[tuple[float, int, float, float]] = []  # (y, type, x1, x2)
@@ -123,7 +122,9 @@ class RectangleAnalyzer:
 
         def covered_x_length() -> float:
             """Total covered x-length from active intervals (merged)."""
-            intervals = [(x1, x2) for (x1, x2), c in active.items() if c > 0 and x1 < x2]
+            intervals = [
+                (x1, x2) for (x1, x2), c in active.items() if c > 0 and x1 < x2
+            ]
             if not intervals:
                 return 0.0
 
@@ -160,7 +161,6 @@ class RectangleAnalyzer:
 
         return area
 
-
     def get_overlap_regions(self) -> list[dict]:
         """
         Compute pairwise overlap regions between rectangles.
@@ -175,25 +175,22 @@ class RectangleAnalyzer:
             - 'rect_indices': tuple[int, int] of overlapping rectangles
             - 'region': dict with keys 'x', 'y', 'width', 'height'
         """
-        overlaps:list[tuple[int,int]] = self.find_overlaps()
-        res:list[dict] =[]
-
+        overlaps: list[tuple[int, int]] = self.find_overlaps()
+        res: list[dict] = []
 
         for item in overlaps:
 
-            ibound:dict = self._boundaries(self.rectangles[item[0]])
-            jbound:dict = self._boundaries(self.rectangles[item[1]])
+            ibound: dict = self._boundaries(self.rectangles[item[0]])
+            jbound: dict = self._boundaries(self.rectangles[item[1]])
 
-            x = max(ibound['xmin'], jbound['xmin'])
-            y = max(ibound['ymin'], jbound['ymin'])
-            width = min(ibound['xmax'], jbound['xmax']) - x
-            height = min(ibound['ymax'], jbound['ymax']) - y
-            region:dict = {'x':x, 'y':y, 'width':width, 'height':height}
+            x = max(ibound["xmin"], jbound["xmin"])
+            y = max(ibound["ymin"], jbound["ymin"])
+            width = min(ibound["xmax"], jbound["xmax"]) - x
+            height = min(ibound["ymax"], jbound["ymax"]) - y
+            region: dict = {"x": x, "y": y, "width": width, "height": height}
 
-            res.append({'rect_indices': item, 'region':region})
+            res.append({"rect_indices": item, "region": region})
         return res
-
-
 
     def is_point_covered(self, x: int | float, y: int | float) -> bool:
         """
@@ -212,12 +209,11 @@ class RectangleAnalyzer:
 
         for rect in self.rectangles:
             rect_bound = self._boundaries(rect)
-            if rect_bound['xmin'] <= x <= rect_bound['xmax']:
-                if rect_bound['ymin'] <= y <= rect_bound['ymax']:
+            if rect_bound["xmin"] <= x <= rect_bound["xmax"]:
+                if rect_bound["ymin"] <= y <= rect_bound["ymax"]:
                     return True
 
         return False
-
 
     def find_max_overlap_point(self) -> dict[str, float | int]:
         """
@@ -251,8 +247,8 @@ class RectangleAnalyzer:
             ys.add(b["ymin"])
             ys.add(b["ymax"])
 
-        xs_sorted:list[float]  = sorted(xs)
-        ys_sorted:list[float]  = sorted(ys)
+        xs_sorted: list[float] = sorted(xs)
+        ys_sorted: list[float] = sorted(ys)
 
         max_count = 0
         best_x = 0.0
@@ -276,11 +272,7 @@ class RectangleAnalyzer:
                     best_x = x
                     best_y = y
 
-        return {
-            "x": best_x,
-            "y": best_y,
-            "count": max_count
-        }
+        return {"x": best_x, "y": best_y, "count": max_count}
 
     def get_stats(self) -> dict[str, float | int]:
         """
@@ -298,11 +290,11 @@ class RectangleAnalyzer:
               individual rectangle areas
         """
 
-        total_rectangles:int = len(self.rectangles)
-        overlapping_pairs:int = len(self.find_overlaps())
-        total_area:float = self.calculate_coverage_area()
+        total_rectangles: int = len(self.rectangles)
+        overlapping_pairs: int = len(self.find_overlaps())
+        total_area: float = self.calculate_coverage_area()
         overlap_area: float = 0
-        sum_of_individual_areas:float = 0
+        sum_of_individual_areas: float = 0
 
         for rectangle in self.rectangles:
 
@@ -311,16 +303,19 @@ class RectangleAnalyzer:
 
         for dicts in self.get_overlap_regions():
 
-            area:float = self._rectangle_area(dicts['region'])
+            area: float = self._rectangle_area(dicts["region"])
             overlap_area += area
 
-        coverage_efficiency = total_area / sum_of_individual_areas if sum_of_individual_areas else 0.0
+        coverage_efficiency = (
+            total_area / sum_of_individual_areas if sum_of_individual_areas else 0.0
+        )
 
-        stats:dict ={'total_rectangles':total_rectangles,
-                     'overlapping_pairs': overlapping_pairs,
-                     'total_area': total_area,
-                     'overlap_area':overlap_area,
-                     'coverage_efficiency': coverage_efficiency
-                      }
+        stats: dict = {
+            "total_rectangles": total_rectangles,
+            "overlapping_pairs": overlapping_pairs,
+            "total_area": total_area,
+            "overlap_area": overlap_area,
+            "coverage_efficiency": coverage_efficiency,
+        }
 
         return stats

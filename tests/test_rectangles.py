@@ -4,6 +4,7 @@ from src.rectangle_analyzer import RectangleAnalyzer
 # Normal cases
 # -----------------------------
 
+
 def test_non_overlapping_rectangles():
     rectangles = [
         {"x": 0, "y": 0, "width": 2, "height": 2},
@@ -47,6 +48,7 @@ def test_negative_coordinates_no_overlap():
     assert analyzer.find_overlaps() == []
     assert analyzer.calculate_coverage_area() == 13
 
+
 def test_negative_overlap():
     rectangles = [
         {"x": -5, "y": -5, "width": 4, "height": 4},
@@ -64,6 +66,7 @@ def test_negative_overlap():
     assert region["width"] == 2
     assert region["height"] == 2
 
+
 def test_crossing_origin():
     rectangles = [
         {"x": -2, "y": -2, "width": 4, "height": 4},
@@ -75,9 +78,11 @@ def test_crossing_origin():
     assert analyzer.is_point_covered(0, 0) is True
     assert analyzer.is_point_covered(-3, -3) is False
 
+
 # -----------------------------
 # Boundary cases (geometry)
 # -----------------------------
+
 
 def test_touching_edges_no_overlap():
     rectangles = [
@@ -96,18 +101,18 @@ def test_nested_rectangles():
         {"x": 0, "y": 0, "width": 10, "height": 10},
         {"x": 2, "y": 2, "width": 2, "height": 2},
         {"x": 1, "y": 1, "width": 4, "height": 4},
-
     ]
 
     analyzer = RectangleAnalyzer(rectangles)
 
-    assert analyzer.find_overlaps() == [(0,1), (0,2),(1,2)]
+    assert analyzer.find_overlaps() == [(0, 1), (0, 2), (1, 2)]
     assert analyzer.calculate_coverage_area() == 100
 
 
 # -----------------------------
 # Edge cases (input structure)
 # -----------------------------
+
 
 def test_empty_input():
     analyzer = RectangleAnalyzer([])
@@ -139,6 +144,7 @@ def test_zero_area_rectangle():
 # Max overlap point
 # -----------------------------
 
+
 def test_max_overlap_point():
     rectangles = [
         {"x": 0, "y": 0, "width": 4, "height": 4},
@@ -152,6 +158,7 @@ def test_max_overlap_point():
 
     assert result["count"] == 3
     assert analyzer.is_point_covered(result["x"], result["y"])
+
 
 def test_max_overlap_point_matreshka_rectangle():
     rectangles = [
@@ -168,6 +175,7 @@ def test_max_overlap_point_matreshka_rectangle():
 
     assert result["count"] == 5
     assert analyzer.is_point_covered(result["x"], result["y"])
+
 
 def test_nested_negative_rectangles():
     rectangles = [
@@ -190,6 +198,7 @@ def test_nested_negative_rectangles():
 # Stats function
 # -----------------------------
 
+
 def test_stats_output():
     rectangles = [
         {"x": 0, "y": 0, "width": 4, "height": 4},
@@ -209,36 +218,28 @@ def test_stats_output():
 # Stress case
 # -----------------------------
 
+
 def test_many_rectangles_stress():
     rectangles = []
 
     for i in range(50):
-        rectangles.append({
-            "x": i,
-            "y": i,
-            "width": 10,
-            "height": 10
-        })
+        rectangles.append({"x": i, "y": i, "width": 10, "height": 10})
 
     analyzer = RectangleAnalyzer(rectangles)
 
     area = analyzer.calculate_coverage_area()
-    assert analyzer.get_stats()['total_rectangles'] == 50
+    assert analyzer.get_stats()["total_rectangles"] == 50
     assert area > 500
+
 
 def test_many_negative_rectangles():
     rectangles = []
 
     for i in range(30):
-        rectangles.append({
-            "x": -i,
-            "y": -i,
-            "width": 10,
-            "height": 10
-        })
+        rectangles.append({"x": -i, "y": -i, "width": 10, "height": 10})
 
     analyzer = RectangleAnalyzer(rectangles)
 
     area = analyzer.calculate_coverage_area()
-    assert analyzer.get_stats()['total_rectangles'] == 30
+    assert analyzer.get_stats()["total_rectangles"] == 30
     assert area > 500
