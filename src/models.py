@@ -59,7 +59,8 @@ class RectangleAnalyzer:
         Overlapping areas should be counted only once.
         Returns: float/int representing total area
         """
-        pass
+
+
 
     def get_overlap_regions(self) -> list[dict]:
         """
@@ -68,16 +69,43 @@ class RectangleAnalyzer:
         - 'rect_indices': tuple of rectangle indices
         - 'region': dict with x, y, width, height of overlap
         """
-        # overlaps:list[tuple[int,int]] = self.find_overlaps()
-        # res:list[dict] =[]
-        # temp:dict[tuple[int,int],dict[]] = {}
+        overlaps:list[tuple[int,int]] = self.find_overlaps()
+        res:list[dict] =[]
+        first_dct:dict = {}
+        region:dict[str, float] = {}
+
+        for item in overlaps:
+            first_dct.update({'rect_indice': item})
+
+            ibound:dict = self._boundries(self.rectangles[item[0]])
+            jbound:dict = self._boundries(self.rectangles[item[1]])
+
+            region.update({'x': max(ibound['xmin'], jbound['xmin'])})
+            region.update({'y': max(ibound['ymin'], jbound['ymin'])})
+
+            region.update({'width': min(ibound['xmax'], jbound['xmax']) - region['x']})
+            region.update({'height': min(ibound['ymax'], jbound['ymax']) - region['y']})
+
+            first_dct.update({'region': region})
+            res.append(first_dct)
+        return res
+
+
 
     def is_point_covered(self, x: int | float, y: int | float) -> bool:
         """
         Check if a point is covered by any rectangle.
         Returns: boolean
         """
-        pass
+
+
+        for rect in self.rectangles:
+            rect_bound = self._boundries(rect)
+            if rect_bound['xmin'] < x < rect_bound['xmax']:
+                if rect_bound['ymin'] < y < rect_bound['ymax']:
+                    return True
+
+        return False
 
     def find_max_overlap_point(self) -> dict:
         """
