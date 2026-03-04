@@ -1,7 +1,7 @@
 [project]
 name = "rectangle-analyzer"
 version = "0.1.0"
-description = "Add your description here"
+description = "A Python tool that analyzes rectangles placed on a 2D plane, finding overlaps and calculating coverage statistics."
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
