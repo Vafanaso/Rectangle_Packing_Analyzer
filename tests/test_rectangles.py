@@ -1,5 +1,4 @@
-from rectangle_analyzer import RectangleAnalyzer
-
+from src.rectangle_analyzer import RectangleAnalyzer
 
 # -----------------------------
 # Normal cases
