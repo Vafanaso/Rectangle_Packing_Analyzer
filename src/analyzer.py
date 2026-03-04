@@ -1,4 +1,4 @@
-from src.models import RectangleAnalyzer
+from src.rectangle_analyzer import RectangleAnalyzer
 
 data = [{"x": 2, "y": 3, "height": 4, "width": 4}]
 
