@@ -21,6 +21,19 @@ class RectangleAnalyzer:
         boundries = {'xmin': xmin,'xmax' : xmax, 'ymin': ymin,'ymax' : ymax}
         return boundries
 
+    def _rectangle_area(self, rectangle:dict) -> float:
+        area:float = 0
+
+        boundries = self._boundries(rectangle)
+
+        x_len:float = boundries['xmax'] - boundries['xmin']
+        y_len:float = boundries['ymax'] - boundries['ymin']
+
+        area = x_len * y_len
+
+        return area
+
+
     def find_overlaps(self) -> list[tuple[int,int]]:
         """
         Find all pairs of overlapping rectangles.
@@ -188,15 +201,70 @@ class RectangleAnalyzer:
 
         return False
 
+
     def find_max_overlap_point(self) -> dict:
         """
-        Find a point covered by maximum number of rectangles.
-        Returns: dict with 'x', 'y', 'count' keys
-        Note: There might be multiple such points, return any
+        Find a point covered by the maximum number of rectangles.
 
-        one.
+        The method evaluates candidate points derived from rectangle
+        boundary coordinates. Overlap counts only change at rectangle
+        edges, therefore it is sufficient to test points between these
+        boundaries.
+
+        Returns
+        -------
+        dict
+            {
+                'x': float,
+                'y': float,
+                'count': int
+            }
+            where (x, y) is a point covered by the maximum number
+            of rectangles and 'count' is the number of rectangles
+            covering that point.
         """
-        pass
+
+        xs: set[float] = set()
+        ys: set[float] = set()
+
+        # collect all boundary coordinates
+        for rect in self.rectangles:
+            b = self._boundries(rect)
+            xs.add(b["xmin"])
+            xs.add(b["xmax"])
+            ys.add(b["ymin"])
+            ys.add(b["ymax"])
+
+        xs_sorted:list[float]  = sorted(xs)
+        ys_sorted:list[float]  = sorted(ys)
+
+        max_count = 0
+        best_x = 0.0
+        best_y = 0.0
+
+        # test midpoints between boundaries
+        for i in range(len(xs_sorted) - 1):
+            for j in range(len(ys_sorted) - 1):
+
+                x = (xs_sorted[i] + xs_sorted[i + 1]) / 2
+                y = (ys_sorted[j] + ys_sorted[j + 1]) / 2
+
+                count = 0
+                for rect in self.rectangles:
+                    b = self._boundries(rect)
+                    if b["xmin"] <= x <= b["xmax"] and b["ymin"] <= y <= b["ymax"]:
+                        count += 1
+
+                if count > max_count:
+                    max_count = count
+                    best_x = x
+                    best_y = y
+
+        return {
+            "x": best_x,
+            "y": best_y,
+            "count": max_count
+        }
 
     def get_stats(self) -> dict:
         """
@@ -211,4 +279,32 @@ class RectangleAnalyzer:
         sum_of_individual_areas)
 
         """
-        pass
+
+        total_rectangles:int = len(self.rectangles)
+        overlapping_pairs:int = len(self.find_overlaps())
+        total_area:float = self.calculate_coverage_area()
+        overlap_area: float = 0
+        sum_of_individual_areas:float = 0
+        coverage_efficiency: float = 0
+
+        for rectangle in self.rectangles:
+
+            area: float = self._rectangle_area(rectangle)
+            sum_of_individual_areas += area
+
+        for dicts in self.get_overlap_regions():
+
+            area:float = self._rectangle_area(dicts['region'])
+            overlap_area += area
+
+        coverage_efficiency = total_area / sum_of_individual_areas
+
+
+        stats:dict ={'total_ractangles':total_rectangles,
+                     'overlapping_pairs': overlapping_pairs,
+                     'total_area': total_area,
+                     'overlap_area':overlap_area,
+                     'coverage_efficiency': coverage_efficiency
+                      }
+
+        return stats
