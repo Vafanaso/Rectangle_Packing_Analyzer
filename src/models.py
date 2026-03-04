@@ -1,3 +1,5 @@
+from collections import Counter
+
 class RectangleAnalyzer:
 
     def __init__(self, rectangles: list[dict]):
@@ -52,14 +54,96 @@ class RectangleAnalyzer:
 
 
 
-
     def calculate_coverage_area(self) -> float:
         """
-        Calculate total area covered by all rectangles.
-        Overlapping areas should be counted only once.
-        Returns: float/int representing total area
-        """
+            Calculate the total area covered by all rectangles using the Sweep Line algorithm.
 
+            This method computes the union area of axis-aligned rectangles, meaning
+            overlapping regions are counted only once. The implementation is based on
+            the classical Sweep Line (or Line Sweep) technique from computational
+            geometry, which is commonly used to solve rectangle union area problems.
+
+            Algorithm
+            ---------
+            A horizontal sweep line moves from the bottom to the top of the plane.
+            For each rectangle two events are generated:
+                - an OPEN event at the rectangle's bottom edge (ymin)
+                - a CLOSE event at the rectangle's top edge (ymax)
+
+            While sweeping, the algorithm maintains a set of active horizontal
+            intervals representing x-ranges of rectangles intersecting the current
+            sweep line.
+
+            Between two consecutive y-events, the active intervals are merged to
+            determine the total covered width along the x-axis. The area contributed
+            by that horizontal strip is calculated as:
+
+                covered_width * (y_current - y_previous)
+
+            The total area is accumulated until all events have been processed.
+
+            Returns
+            -------
+            float
+                Total union area covered by all rectangles.
+            """
+        OPEN, CLOSE = 1, -1
+        events: list[tuple[float, int, float, float]] = []  # (y, type, x1, x2)
+
+        # Build sweep events
+        for rect in self.rectangles:
+            b = self._boundries(rect)
+            x1, x2 = b["xmin"], b["xmax"]
+            y1, y2 = b["ymin"], b["ymax"]
+            if x1 >= x2 or y1 >= y2:
+                continue
+            events.append((y1, OPEN, x1, x2))
+            events.append((y2, CLOSE, x1, x2))
+
+        if not events:
+            return 0.0
+
+        events.sort(key=lambda e: e[0])  # sort by y
+        active: Counter[tuple[float, float]] = Counter()
+
+        def covered_x_length() -> float:
+            """Total covered x-length from active intervals (merged)."""
+            intervals = [(x1, x2) for (x1, x2), c in active.items() if c > 0 and x1 < x2]
+            if not intervals:
+                return 0.0
+
+            intervals.sort()
+            total = 0.0
+            cur_l, cur_r = intervals[0]
+            for l, r in intervals[1:]:
+                if l > cur_r:
+                    total += cur_r - cur_l
+                    cur_l, cur_r = l, r
+                else:
+                    cur_r = max(cur_r, r)
+            total += cur_r - cur_l
+            return total
+
+        area = 0.0
+        prev_y = events[0][0]
+        i = 0
+        n = len(events)
+
+        while i < n:
+            y = events[i][0]
+            area += covered_x_length() * (y - prev_y)
+
+            # apply all events at this same y
+            while i < n and events[i][0] == y:
+                _, typ, x1, x2 = events[i]
+                active[(x1, x2)] += typ
+                if active[(x1, x2)] == 0:
+                    del active[(x1, x2)]
+                i += 1
+
+            prev_y = y
+
+        return area
 
 
     def get_overlap_regions(self) -> list[dict]:
