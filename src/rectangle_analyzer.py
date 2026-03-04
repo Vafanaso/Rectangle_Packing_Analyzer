@@ -314,8 +314,7 @@ class RectangleAnalyzer:
             area:float = self._rectangle_area(dicts['region'])
             overlap_area += area
 
-        coverage_efficiency = total_area / sum_of_individual_areas
-
+        coverage_efficiency = total_area / sum_of_individual_areas if sum_of_individual_areas else 0.0
 
         stats:dict ={'total_rectangles':total_rectangles,
                      'overlapping_pairs': overlapping_pairs,
