@@ -2,18 +2,24 @@ from collections import Counter
 
 class RectangleAnalyzer:
 
-    def __init__(self, rectangles: list[dict]):
+    def __init__(self, rectangles: list[dict[str, float | int]]):
         """
         Initialize analyzer with list of rectangles.
         Each rectangle is a dict with keys: x, y, width, height
         """
         self.rectangles = rectangles
 
-    def _boundries(self,rectangle:dict)-> dict[str,float]:
+    def _boundries(self,rectangle:dict[str, float | int])-> dict[str,float]:
         """
-        A helper function that returns boundries of the given rectangle
+        A helper func that converts a rectangle defined by (x, y, width, height) into boundary
+        coordinates (xmin, xmax, ymin, ymax).
 
+        Returns
+        -------
+        dict[str, float]
+            Dictionary with rectangle boundaries.
         """
+
         xmin = float(rectangle['x'])
         xmax = float(xmin + rectangle['width'])
         ymin = float(rectangle['y'])
@@ -21,7 +27,20 @@ class RectangleAnalyzer:
         boundries = {'xmin': xmin,'xmax' : xmax, 'ymin': ymin,'ymax' : ymax}
         return boundries
 
-    def _rectangle_area(self, rectangle:dict) -> float:
+    def _rectangle_area(self, rectangle:dict[str, float | int]) -> float:
+        """
+        Compute the area of a rectangle.
+
+        Parameters
+        ----------
+        rectangle : dict
+            Rectangle defined by x, y, width, height.
+
+        Returns
+        -------
+        float
+            Area of the rectangle.
+        """
         area:float = 0
 
         boundries = self._boundries(rectangle)
@@ -36,10 +55,18 @@ class RectangleAnalyzer:
 
     def find_overlaps(self) -> list[tuple[int,int]]:
         """
-        Find all pairs of overlapping rectangles.
-        Returns: List of tuples (i, j) where i < j are indices
-        Example: [(0, 1), (0, 2), (1, 2)]
+        Find all pairs of rectangles that overlap.
+
+        Two rectangles overlap if their projections intersect on both
+        the x-axis and y-axis.
+
+        Returns
+        -------
+        list[tuple[int, int]]
+            List of index pairs (i, j) such that rectangle i overlaps
+            rectangle j, with i < j.
         """
+
         rectangles = self.rectangles
         res: list[tuple[int,int]] = []
         if len(rectangles) != 0:
@@ -48,15 +75,6 @@ class RectangleAnalyzer:
 
                     ibound = self._boundries(rectangles[i])
                     jbound = self._boundries(rectangles[j])
-
-                    # ixmin = rectangles[i]['x']
-                    # ixmax = ixmin + rectangles[i]['width']
-                    # iymin = rectangles[i]['y']
-                    # iymax = iymin + rectangles[i]['height']
-                    # jxmin = rectangles[j]['x']
-                    # jxmax = jxmin + rectangles[j]['width']
-                    # jymin = rectangles[j]['y']
-                    # jymax = jymin + rectangles[j]['height']
 
 
                     if min(ibound['xmax'], jbound['xmax']) > max(ibound['xmin'], jbound['xmin']):
@@ -69,37 +87,21 @@ class RectangleAnalyzer:
 
     def calculate_coverage_area(self) -> float:
         """
-            Calculate the total area covered by all rectangles using the Sweep Line algorithm.
+        Compute the total area covered by all rectangles using a sweep line algorithm.
 
-            This method computes the union area of axis-aligned rectangles, meaning
-            overlapping regions are counted only once. The implementation is based on
-            the classical Sweep Line (or Line Sweep) technique from computational
-            geometry, which is commonly used to solve rectangle union area problems.
+        The algorithm sweeps a horizontal line from bottom to top across the plane.
+        Rectangle edges create events where x-intervals become active or inactive.
+        Between consecutive y-events, the active intervals are merged to determine
+        the total covered width. The area of each horizontal strip is then added to
+        the result.
 
-            Algorithm
-            ---------
-            A horizontal sweep line moves from the bottom to the top of the plane.
-            For each rectangle two events are generated:
-                - an OPEN event at the rectangle's bottom edge (ymin)
-                - a CLOSE event at the rectangle's top edge (ymax)
+        Returns
+        -------
+        float
+            Union area of all rectangles (overlaps counted only once).
+        """
 
-            While sweeping, the algorithm maintains a set of active horizontal
-            intervals representing x-ranges of rectangles intersecting the current
-            sweep line.
 
-            Between two consecutive y-events, the active intervals are merged to
-            determine the total covered width along the x-axis. The area contributed
-            by that horizontal strip is calculated as:
-
-                covered_width * (y_current - y_previous)
-
-            The total area is accumulated until all events have been processed.
-
-            Returns
-            -------
-            float
-                Total union area covered by all rectangles.
-            """
         OPEN, CLOSE = 1, -1
         events: list[tuple[float, int, float, float]] = []  # (y, type, x1, x2)
 
@@ -161,10 +163,17 @@ class RectangleAnalyzer:
 
     def get_overlap_regions(self) -> list[dict]:
         """
-        Find actual overlap regions between rectangles.
-        Returns: List of dicts containing:
-        - 'rect_indices': tuple of rectangle indices
-        - 'region': dict with x, y, width, height of overlap
+        Compute pairwise overlap regions between rectangles.
+
+        For each overlapping pair returned by `find_overlaps`, the method
+        calculates the intersection rectangle.
+
+        Returns
+        -------
+        list[dict]
+            Each element contains:
+            - 'rect_indices': tuple[int, int] of overlapping rectangles
+            - 'region': dict with keys 'x', 'y', 'width', 'height'
         """
         overlaps:list[tuple[int,int]] = self.find_overlaps()
         res:list[dict] =[]
@@ -188,40 +197,47 @@ class RectangleAnalyzer:
 
     def is_point_covered(self, x: int | float, y: int | float) -> bool:
         """
-        Check if a point is covered by any rectangle.
-        Returns: boolean
-        """
+        Check whether a point lies inside any rectangle.
 
+        Parameters
+        ----------
+        x, y : float | int
+            Coordinates of the point to test.
+
+        Returns
+        -------
+        bool
+            True if the point is inside at least one rectangle, otherwise False.
+        """
 
         for rect in self.rectangles:
             rect_bound = self._boundries(rect)
-            if rect_bound['xmin'] < x < rect_bound['xmax']:
-                if rect_bound['ymin'] < y < rect_bound['ymax']:
+            if rect_bound['xmin'] <= x <= rect_bound['xmax']:
+                if rect_bound['ymin'] <= y <= rect_bound['ymax']:
                     return True
 
         return False
 
 
-    def find_max_overlap_point(self) -> dict:
+    def find_max_overlap_point(self) -> dict[str, float | int]:
         """
         Find a point covered by the maximum number of rectangles.
 
-        The method evaluates candidate points derived from rectangle
-        boundary coordinates. Overlap counts only change at rectangle
-        edges, therefore it is sufficient to test points between these
-        boundaries.
+        The method searches for the point where the largest number of rectangles overlap.
+
+        It collects all rectangle edge coordinates and creates candidate regions
+        between these edges. Since the number of overlapping rectangles only changes
+        when crossing a rectangle edge, it is enough to test points located between
+        these edges. For each candidate point, the method counts how many rectangles
+        cover it and keeps the point with the highest count.
 
         Returns
         -------
-        dict
-            {
-                'x': float,
-                'y': float,
-                'count': int
-            }
-            where (x, y) is a point covered by the maximum number
-            of rectangles and 'count' is the number of rectangles
-            covering that point.
+        dict[str, float | int]
+            Dictionary containing:
+            - 'x': x-coordinate of the point
+            - 'y': y-coordinate of the point
+            - 'count': number of rectangles covering that point
         """
 
         xs: set[float] = set()
@@ -266,18 +282,20 @@ class RectangleAnalyzer:
             "count": max_count
         }
 
-    def get_stats(self) -> dict:
+    def get_stats(self) -> dict[str, float | int]:
         """
-        Get coverage statistics.
-        Returns: dict with:
-        - 'total_rectangles': int
-        - 'overlapping_pairs': int
-        - 'total_area': float (union area)
-        - 'overlap_area': float (sum of all overlap regions)
-        - 'coverage_efficiency': float (total_area /
+        Compute summary statistics for the rectangle set.
 
-        sum_of_individual_areas)
-
+        Returns
+        -------
+        dict[str, float | int]
+            Dictionary containing:
+            - 'total_rectangles': number of rectangles
+            - 'overlapping_pairs': number of overlapping rectangle pairs
+            - 'total_area': union area covered by all rectangles
+            - 'overlap_area': sum of pairwise overlap regions
+            - 'coverage_efficiency': ratio of union area to the sum of
+              individual rectangle areas
         """
 
         total_rectangles:int = len(self.rectangles)
@@ -285,7 +303,6 @@ class RectangleAnalyzer:
         total_area:float = self.calculate_coverage_area()
         overlap_area: float = 0
         sum_of_individual_areas:float = 0
-        coverage_efficiency: float = 0
 
         for rectangle in self.rectangles:
 
@@ -300,7 +317,7 @@ class RectangleAnalyzer:
         coverage_efficiency = total_area / sum_of_individual_areas
 
 
-        stats:dict ={'total_ractangles':total_rectangles,
+        stats:dict ={'total_rectangles':total_rectangles,
                      'overlapping_pairs': overlapping_pairs,
                      'total_area': total_area,
                      'overlap_area':overlap_area,
